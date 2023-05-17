@@ -1,4 +1,4 @@
-# API Name
+# OutSystems.FileServer.Api
 
 This is the README file for the API. It provides information on how to run the API locally and other relevant details.
 
