@@ -4,7 +4,7 @@ This is the README file for the API. It provides information on how to run the A
 
 ## Prerequisites
 
-- [.NET SDK](https://dotnet.microsoft.com/download) (version XYZ or higher)
+- [.NET SDK](https://dotnet.microsoft.com/download) (version 7 or higher)
 - [Docker](https://www.docker.com/get-started) (if running with Docker)
 
 ## Getting Started
