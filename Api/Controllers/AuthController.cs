@@ -20,17 +20,9 @@ public class AuthController : ControllerBase
     [HttpPost("token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult Token([FromBody] string credentials)
+    public IActionResult Token([FromBody] LoginRequest credentials)
     {
-        // Decode the Base64 string
-        var decodedCredentials = Encoding.UTF8.GetString(Convert.FromBase64String(credentials));
-
-        // Split the username and password values
-        var credentialsArray = decodedCredentials.Split(':');
-        var username = credentialsArray[0];
-        var password = credentialsArray[1];
-
-        var isValid = ValidateCredentials(username, password);
+        var isValid = ValidateCredentials(credentials.client_id, credentials.secret);
 
         if (!isValid)
         {
