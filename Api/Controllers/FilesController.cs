@@ -66,7 +66,7 @@ public class FilesController : Controller
         var fileName = request.FileName;
         var folderPath = request.FolderPath;
 
-        var filePath = Path.Combine(_environment.ContentRootPath, folderPath, fileName);
+        var filePath = Path.Combine(_configuration.GetValue<string>("AppSettings:BaseRootPath"), folderPath, fileName);
 
         if (System.IO.File.Exists(filePath) && !overwrite)
         {
@@ -114,7 +114,7 @@ public class FilesController : Controller
             return BadRequest("Please provide a folder path.");
         }
 
-        var filePath = Path.Combine(_environment.ContentRootPath, folderPath);
+        var filePath = Path.Combine(_configuration.GetValue<string>("AppSettings:BaseRootPath"), folderPath);
 
         if (!Directory.Exists(filePath))
         {
@@ -123,9 +123,9 @@ public class FilesController : Controller
 
         try
         {
-            var rootFolder = new FolderResponse { Name = Path.GetFileName(folderPath) };
+            var rootFolder = new FolderResponse { Name = Path.GetFileName(filePath) };
 
-            PopulateFolder(rootFolder, folderPath, includeSubfolders);
+            PopulateFolder(rootFolder, filePath, includeSubfolders);
 
             return Ok(rootFolder);
         }
@@ -177,7 +177,7 @@ public class FilesController : Controller
             return BadRequest("Please provide a valid file path and file name.");
         }
 
-        var filePath = Path.Combine(_environment.ContentRootPath, folderPath, fileName);
+        var filePath = Path.Combine(_configuration.GetValue<string>("AppSettings:BaseRootPath"), folderPath, fileName);
 
         if (!System.IO.File.Exists(filePath))
         {
