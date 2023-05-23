@@ -32,9 +32,18 @@ This is the README file for the API. It provides information on how to run the A
 
 1. Clone the repository: `git clone https://github.com/os-adv-dev/OutSystems.FileServer.git`
 2. Navigate to the project directory
-3. Build the Docker image: `docker build -t outsystems-fileserver-api .`
-4. Run the Docker container: `docker run -d -p 8080:80 outsystems-fileserver-api
+3. Build the Docker image: `docker build -t outsystems-fileserver-api`
+4. Run the Docker container: `docker run -d -p 8080:80 outsystems-fileserver-api`
 5. The API will be available at `http://localhost:8080`
+
+## Publishing (IIS)
+
+1. Navigate to the Api directory using terminal.
+2. Use the `dotnet publish -c release` command to publish.
+3. Avoid to copy the `appsettings.json` file and copy the rest of the content from `PATH TO THE API\Api\bin\release\net7.0\publish\`
+4. Paste on the destination folder configured in IIS. If the site is running maybe you need to stop first to replace the files.
+5. If it's necessary, change the site `appsettings.json` file. 
+6. Start the site and navigate to the swagger to test and make sure it's working.
 
 ## API Documentation
 

@@ -102,7 +102,7 @@ public class FilesController : Controller
     /// <response code="500">Returns an InternalServerError indicating that an error occurred while uploading the file.</response>
     [Authorize]
     [HttpGet("list")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FolderResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -165,7 +165,7 @@ public class FilesController : Controller
     /// <response code="500">Returns an InternalServerError indicating that an error occurred while downloading the file.</response>
     [Authorize]
     [HttpGet("download")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileStreamResult))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

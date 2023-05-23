@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using OutSystems.FileServer.Api.Responses;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
@@ -18,7 +19,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("token")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult Token([FromBody] LoginRequest credentials)
     {
@@ -44,7 +45,7 @@ public class AuthController : ControllerBase
         
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        return Ok(new
+        return Ok(new TokenResponse
         {
             AccessToken = tokenHandler.WriteToken(token)
         });
