@@ -32,6 +32,8 @@ public class AuthController : ControllerBase
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+        var expiresIn = 5 * 1000;
+        var expireDate = DateTime.UtcNow.AddMilliseconds(expiresIn);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new Claim[]
@@ -39,7 +41,7 @@ public class AuthController : ControllerBase
                 new Claim(ClaimTypes.Name, "username"),
                 new Claim(ClaimTypes.Role, "admin")
             }),
-            Expires = DateTime.UtcNow.AddMinutes(5),
+            Expires = expireDate,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         
@@ -47,7 +49,8 @@ public class AuthController : ControllerBase
 
         return Ok(new TokenResponse
         {
-            AccessToken = tokenHandler.WriteToken(token)
+            AccessToken = tokenHandler.WriteToken(token),
+            ExpiresIn = expiresIn
         });
     }
 
