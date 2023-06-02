@@ -41,6 +41,7 @@ public class FilesController : Controller
     public async Task<IActionResult> UploadFile([FromForm] FileUploadRequest request, [FromQuery] bool overwrite = false)
     {
         var maxFileSizeInMb = _configuration.GetValue<int>("AppSettings:MaxFileSizeInMb");
+        var baseRootPath = _configuration.GetValue<string>("AppSettings:BaseRootPath");
         var maxFileSizeInBytes = maxFileSizeInMb * ONE_MEGABYTE_IN_BYTES;
 
         if (request.File == null || request.File.Length == 0)
@@ -66,7 +67,7 @@ public class FilesController : Controller
         var fileName = request.FileName;
         var folderPath = request.FolderPath;
 
-        var filePath = Path.Combine(_configuration.GetValue<string>("AppSettings:BaseRootPath"), folderPath, fileName);
+        var filePath = Path.Combine(baseRootPath, folderPath, fileName);
 
         if (System.IO.File.Exists(filePath) && !overwrite)
         {
@@ -86,6 +87,72 @@ public class FilesController : Controller
         {
             _logger.Error(ex.Message);
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploading the file.");
+        }
+    }
+
+    /// <summary>
+    /// Uploads a binary file to a specified folder path.
+    /// </summary>
+    /// <param name="fileName">The file name.</param>
+    /// <param name="folderPath">The folder path to where the upload will be done.</param>
+    /// <param name="overwrite">Indicates whether to overwrite the file if it already exists. Defaults to false.</param>
+    /// <returns>Returns the result of the upload operation.</returns>
+    /// <response code="200">Returns the message "File uploaded successfully to [folderPath]".</response>
+    /// <response code="400">Returns a BadRequest indicating that the file was not provided, the file size exceeded the maximum allowed size, or the file name or folder path were not provided.</response>
+    /// <response code="401">Returns a Unauthorized indicating that the JWT token was not valid or missing.</response>
+    /// <response code="409">Returns a Conflict indicating that the file already exists and overwrite is false.</response>
+    /// <response code="500">Returns an InternalServerError indicating that an error occurred while uploading the file.</response>
+    [Authorize]
+    [HttpPost("uploadbinary")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UploadFileBinary([FromQuery] string fileName, [FromQuery] string folderPath, [FromQuery] bool overwrite = false)
+    {
+        var maxFileSizeInMb = _configuration.GetValue<int>("AppSettings:MaxFileSizeInMb");
+        var baseRootPath = _configuration.GetValue<string>("AppSettings:BaseRootPath");
+        var maxFileSizeInBytes = maxFileSizeInMb * ONE_MEGABYTE_IN_BYTES;
+
+        var request = HttpContext.Request;
+        var bodyStream = request.Body;
+
+        MemoryStream ms = new MemoryStream();
+        await bodyStream.CopyToAsync(ms);
+        var bodyLen = ms.Length;
+
+        if (bodyStream == null || bodyLen == 0)
+        {
+            return BadRequest("Please provide a file to upload.");
+        }
+
+        if (bodyLen > maxFileSizeInBytes)
+        {
+            return BadRequest($"File size exceeded. Maximum allowed size is {maxFileSizeInMb} megabytes.");
+        }
+
+        var filePath = Path.Combine(baseRootPath, folderPath, fileName);
+
+        if (System.IO.File.Exists(filePath) && !overwrite)
+        {
+            return Conflict($"File '{fileName}' already exists in '{folderPath}'.");
+        }
+
+        try
+        {
+            using (var streamWrite = new FileStream(filePath, FileMode.Create))
+            {
+                await streamWrite.WriteAsync(ms.ToArray());
+            }
+
+            return Ok($"File '{fileName}' uploaded successfully to '{folderPath}'.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploading the file.");
+
         }
     }
 
